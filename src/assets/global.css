@@ -1,13 +1,22 @@
+.el-aside {
+    color: #333;
+    box-shadow: 2px 0 6px rgb(0, 21, 41, 35%);
+}
+
+.el-menu {
+    height: 100%;
+    overflow-x: hidden;
+    background-color: rgb(48, 65, 86);
+}
+
+/*页头设置*/
 .el-header {
     background-color: #B3C0D1;
     color: #333;
     line-height: 60px;
 }
 
-.el-aside {
-    color: #333;
-}
-
+/*设置页面外边距为0*/
 * {
     margin: 0;
 }
@@ -15,5 +24,9 @@
 .background {
     background-color: #fff;
     border: 1px solid #d9d9d9;
-    border-radius: 3px
+    border-radius: 3px;
+}
+
+.el-dialog__body {
+    padding: 30px 70px;
 }
