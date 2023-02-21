@@ -17,13 +17,13 @@
       <el-menu-item index="queryEquipment">设备查看</el-menu-item>
       <el-submenu index="1-2">
         <template slot="title">审批管理</template>
-        <el-menu-item index="1-2-1">设备申请</el-menu-item>
-        <el-menu-item index="1-2-2">设备更换</el-menu-item>
+        <el-menu-item index="queryApply">设备申请</el-menu-item>
+        <el-menu-item index="queryChange">设备更换</el-menu-item>
       </el-submenu>
-      <el-menu-item index="1-3">报废记录</el-menu-item>
+      <el-menu-item index="queryScrap">报废记录</el-menu-item>
     </el-submenu>
-    <el-menu-item index="queryUser">
-      <template slot="title"><i class="el-icon-user"></i><span slot="title">员工管理</span></template>
+    <el-menu-item index="queryUser"><i class="el-icon-user"></i>
+      <template slot="title"><span slot="title">员工管理</span></template>
     </el-menu-item>
     <el-submenu index="3">
       <template slot="title"><i class="el-icon-setting"></i><span slot="title">系统设置</span></template>

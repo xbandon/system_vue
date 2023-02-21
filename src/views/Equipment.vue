@@ -2,7 +2,8 @@
   <div>
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">设备管理</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/' }">主页</el-breadcrumb-item>
+        <el-breadcrumb-item>设备管理</el-breadcrumb-item>
         <el-breadcrumb-item>设备查看</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -10,7 +11,7 @@
     <div class="background">
       <div style="padding: 30px 50px">
         <el-form :inline="true" class="demo-form-inline">
-          <el-row type="flex" justify="space-around">
+          <el-row :gutter="20">
             <el-col :span="6">
               <el-form-item label="设备名称：">
                 <el-input v-model.trim="equipmentName" placeholder="请输入设备名称" size="medium" clearable></el-input>
@@ -91,7 +92,7 @@
           <el-input v-model.trim="form.equipmentName" autocomplete="off" style="width: 300px" clearable></el-input>
         </el-form-item>
         <el-form-item label="设备型号" prop="equipmentType">
-          <el-input v-model.trim="form.equipmentType" autocomplete="off" placeholder="请输入数字和英文字母"
+          <el-input v-model.trim="form.equipmentType" autocomplete="off" placeholder="允许输入数字和英文字母"
                     style="width: 300px" maxlength="8" show-word-limit clearable></el-input>
         </el-form-item>
       </el-form>
@@ -142,7 +143,7 @@ export default {
           {required: true, message: '设备型号不能为空', trigger: 'blur'},
           {
             pattern: /^[0-9a-zA-Z]*$/g,
-            message: '允许输入数字和英文字母',
+            message: '请输入正确的设备型号',
             trigger: 'blur'
           },
         ]

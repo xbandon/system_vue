@@ -24,7 +24,22 @@ const routes = [
         path: 'queryUser',
         name: 'user',
         component: () =>import('../views/User.vue')
-      }
+      },
+      {
+        path: 'queryApply',
+        name: 'apply',
+        component: () =>import('../views/Apply.vue'),
+      },
+      {
+        path: 'queryChange',
+        name: 'change',
+        component: () =>import('../views/Change.vue'),
+      },
+      {
+        path: 'queryScrap',
+        name: 'scrap',
+        component: () =>import('../views/Scrap.vue'),
+      },
     ]
   },
 ]

@@ -1,19 +1,28 @@
 <template>
   <div>
-    <div style="margin-top: 5px; margin-bottom: 20px">
-      <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">主页</el-breadcrumb-item>
-        <el-breadcrumb-item>设备管理</el-breadcrumb-item>
-        <el-breadcrumb-item>库存查看</el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-
-    <div class="background">
+    <div class="background" style="margin-top: 10px">
       <div style="padding: 30px 50px">
-        <el-form :inline="true" class="demo-form-inline">
-          <el-form-item label="设备名称：">
-            <el-input v-model="equipmentName" placeholder="请输入设备名称" size="medium" clearable></el-input>
-          </el-form-item>
+        <el-form :inline="true" class="demo-form-inline" label-width="110px">
+          <el-row :gutter="20">
+            <el-col :span="6">
+              <el-form-item label="申请人：">
+                <el-input v-model.trim="applyUser" placeholder="请输入申请人姓名" size="medium"
+                          clearable></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="审批人：">
+                <el-input v-model.trim="approvalUser" placeholder="请输入审批人姓名" size="medium"
+                          clearable></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="更换设备名称：">
+                <el-input v-model.trim="equipmentName" placeholder="请输入更换设备名称" size="medium"
+                          clearable></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
         <el-row type="flex" justify="end" style="margin-top: 10px">
           <el-button id="queryButton" type="primary" size="medium" @click="onSubmit">查询</el-button>
@@ -29,12 +38,15 @@
         <el-table :data="tableData" border stripe
                   :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
-          <el-table-column prop="equipmentName" label="设备名称"></el-table-column>
-          <el-table-column prop="stockNum" label="库存数量"></el-table-column>
-          <el-table-column prop="freeNum" label="在库数量"></el-table-column>
-          <el-table-column prop="sendNum" label="派送中数量"></el-table-column>
-          <el-table-column prop="useNum" label="使用中数量"></el-table-column>
-          <el-table-column prop="scrapNum" label="报废数量"></el-table-column>
+          <el-table-column prop="srcEquipmentName" label="原设备名称"></el-table-column>
+          <el-table-column prop="srcEquipmentType" label="原设备型号"></el-table-column>
+          <el-table-column prop="equipmentName" label="更换设备名称"></el-table-column>
+          <el-table-column prop="applyUser" label="申请人"></el-table-column>
+          <el-table-column prop="applyReason" label="申请原因"></el-table-column>
+          <el-table-column prop="applyTime" label="申请时间"></el-table-column>
+          <el-table-column prop="approvalUser" label="审批人"></el-table-column>
+          <el-table-column prop="approvalLog" label="审批备注"></el-table-column>
+          <el-table-column prop="approvalTime" label="审批时间"></el-table-column>
         </el-table>
       </div>
       <div style="padding-left: 25px; padding-right: 25px; padding-bottom: 30px; display: flex">
@@ -56,7 +68,7 @@
 
 <script>
 export default {
-  name: "Stock",
+  name: "ApprovedErr",
   data() {
     return {
       tableData: [], //表格数据 默认为空
@@ -64,7 +76,9 @@ export default {
       pageSize: 5, //每页显示条数
       total: 0, //数据总数
       //查询列表
-      equipmentName: ''
+      applyUser: '',
+      approvalUser: '',
+      equipmentName: '',
     }
   },
   created() {
@@ -83,10 +97,12 @@ export default {
     },
     //查询
     async load() {
-      await this.request.post('/mg/queryEquipmentStock', {
+      await this.request.post('/mg/queryChangedErrInfos', {
         'rows': this.pageSize,
         'page': this.currentPage,
-        'equipmentName': this.equipmentName.trim()
+        'applyUser': this.applyUser,
+        'approvalUser': this.approvalUser,
+        'equipmentName': this.equipmentName
       }).then(res => {
         this.tableData = res.list
         this.total = res.total
@@ -98,13 +114,15 @@ export default {
     },
     //重置
     async reset() {
-      this.equipmentName = ''
+      this.userName = '',
+          this.approvalUser = '',
+          this.equipmentName = ''
     },
     onReset() {
       this.reset()
       this.load()
       document.getElementById("resetButton").blur()
-    }
+    },
   }
 }
 </script>

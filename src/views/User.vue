@@ -2,8 +2,8 @@
   <div>
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">员工管理</el-breadcrumb-item>
-        <el-breadcrumb-item></el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/' }">主页</el-breadcrumb-item>
+        <el-breadcrumb-item>员工管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
 
@@ -145,7 +145,7 @@
 import filter from "@/common/filter";
 
 export default {
-  name: "Equipment",
+  name: "User",
   inject: ["reload"],
   data() {
     return {

@@ -4,16 +4,30 @@
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/' }">主页</el-breadcrumb-item>
         <el-breadcrumb-item>设备管理</el-breadcrumb-item>
-        <el-breadcrumb-item>库存查看</el-breadcrumb-item>
+        <el-breadcrumb-item>报废记录</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
 
     <div class="background">
       <div style="padding: 30px 50px">
         <el-form :inline="true" class="demo-form-inline">
-          <el-form-item label="设备名称：">
-            <el-input v-model="equipmentName" placeholder="请输入设备名称" size="medium" clearable></el-input>
-          </el-form-item>
+          <el-row :gutter="20">
+            <el-col :span="6">
+              <el-form-item label="设备名称：">
+                <el-input v-model.trim="equipmentName" placeholder="请输入设备名称" size="medium" clearable></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="设备型号：">
+                <el-input v-model.trim="equipmentType" placeholder="请输入设备型号" size="medium" clearable></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="报废人：">
+                <el-input v-model.trim="scrapUser" placeholder="请输入设备型号" size="medium" clearable></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
         <el-row type="flex" justify="end" style="margin-top: 10px">
           <el-button id="queryButton" type="primary" size="medium" @click="onSubmit">查询</el-button>
@@ -29,12 +43,12 @@
         <el-table :data="tableData" border stripe
                   :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
+          <el-table-column prop="keyId" label="主键" v-if="false"></el-table-column>
           <el-table-column prop="equipmentName" label="设备名称"></el-table-column>
-          <el-table-column prop="stockNum" label="库存数量"></el-table-column>
-          <el-table-column prop="freeNum" label="在库数量"></el-table-column>
-          <el-table-column prop="sendNum" label="派送中数量"></el-table-column>
-          <el-table-column prop="useNum" label="使用中数量"></el-table-column>
-          <el-table-column prop="scrapNum" label="报废数量"></el-table-column>
+          <el-table-column prop="equipmentType" label="设备型号"></el-table-column>
+          <el-table-column prop="scrapUser" label="报废人"></el-table-column>
+          <el-table-column prop="scrapTime" label="报废时间"></el-table-column>
+          <el-table-column prop="scrapLog" label="报废记录"></el-table-column>
         </el-table>
       </div>
       <div style="padding-left: 25px; padding-right: 25px; padding-bottom: 30px; display: flex">
@@ -56,7 +70,7 @@
 
 <script>
 export default {
-  name: "Stock",
+  name: "Scrap",
   data() {
     return {
       tableData: [], //表格数据 默认为空
@@ -64,7 +78,9 @@ export default {
       pageSize: 5, //每页显示条数
       total: 0, //数据总数
       //查询列表
-      equipmentName: ''
+      equipmentName: '',
+      equipmentType: '',
+      scrapUser: ''
     }
   },
   created() {
@@ -83,10 +99,12 @@ export default {
     },
     //查询
     async load() {
-      await this.request.post('/mg/queryEquipmentStock', {
+      await this.request.post('/mg/queryScrapInfos', {
         'rows': this.pageSize,
         'page': this.currentPage,
-        'equipmentName': this.equipmentName.trim()
+        'equipmentName': this.equipmentName,
+        'equipmentType': this.equipmentType,
+        'scrapUser': this.scrapUser
       }).then(res => {
         this.tableData = res.list
         this.total = res.total
@@ -98,7 +116,9 @@ export default {
     },
     //重置
     async reset() {
-      this.equipmentName = ''
+      this.equipmentName = '',
+          this.equipmentType = '',
+          this.scrapUser = ''
     },
     onReset() {
       this.reset()
