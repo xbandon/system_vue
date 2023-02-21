@@ -40,15 +40,15 @@
 
     <div class="background" style="margin-top: 50px">
       <div style="padding: 30px 20px">
-        <el-table :data="tableData" border stripe
+        <el-table :data="tableData" border stripe max-height="450px"
                   :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
           <el-table-column prop="keyId" label="主键" v-if="false"></el-table-column>
           <el-table-column prop="equipmentName" label="设备名称"></el-table-column>
           <el-table-column prop="equipmentType" label="设备型号"></el-table-column>
+          <el-table-column prop="scrapLog" label="报废记录"></el-table-column>
           <el-table-column prop="scrapUser" label="报废人"></el-table-column>
           <el-table-column prop="scrapTime" label="报废时间"></el-table-column>
-          <el-table-column prop="scrapLog" label="报废记录"></el-table-column>
         </el-table>
       </div>
       <div style="padding-left: 25px; padding-right: 25px; padding-bottom: 30px; display: flex">

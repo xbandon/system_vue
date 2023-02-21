@@ -53,16 +53,18 @@
         <div style="margin-bottom: 15px">
           <el-button type="primary" style="font-size: 13px" @click="dialogFormVisible=true">新增设备 <i
               class="el-icon-circle-plus-outline"></i></el-button>
-          <el-button type="danger" style="font-size: 13px" @click="dialogVisible=true">批量删除 <i
+          <el-button id="deleteButton" type="danger" style="font-size: 13px" @click=ifDelete>批量删除 <i
               class="el-icon-remove-outline"></i></el-button>
         </div>
-        <el-table :data="tableData" border stripe
+        <el-table :data="tableData" border stripe max-height="450px"
                   :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
-                  :cell-style="{'text-align': 'center', 'font-size': '13px'}">
+                  :cell-style="{'text-align': 'center', 'font-size': '13px'}"
+                  @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="keyId" label="设备编号" v-if="false"></el-table-column>
           <el-table-column prop="equipmentName" label="设备名称"></el-table-column>
           <el-table-column prop="equipmentType" label="设备型号"></el-table-column>
+          <el-table-column prop="equipmentStatusCode" label="设备状态码" v-if="false"></el-table-column>
           <el-table-column prop="equipmentStatus" label="设备状态"></el-table-column>
           <el-table-column prop="userName" label="使用人"></el-table-column>
           <el-table-column prop="insertUser" label="入库人"></el-table-column>
@@ -106,7 +108,7 @@
       <span>是否确认删除？</span>
       <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
+            <el-button id="OkButton" type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
             </span>
     </el-dialog>
   </div>
@@ -149,7 +151,9 @@ export default {
         ]
       },
       //删除对话框
-      dialogVisible: false
+      dialogVisible: false,
+      //存储批量删除所选数据
+      multipleSelection: []
     }
   },
   created() {
@@ -181,8 +185,8 @@ export default {
       })
     },
     onSubmit() {
-      this.load()
       document.getElementById("queryButton").blur()
+      this.load()
     },
     //重置
     async reset() {
@@ -192,9 +196,9 @@ export default {
           this.userName = ''
     },
     onReset() {
+      document.getElementById("resetButton").blur()
       this.reset()
       this.load()
-      document.getElementById("resetButton").blur()
     },
     //新增
     async add() {
@@ -209,29 +213,72 @@ export default {
             type: 'success'
           })
           this.dialogFormVisible = false
+          //刷新页面
+          this.reload()
         } else if (!res.error) {
           this.$message({
             showClose: true,
             message: res.errMsg,
             type: 'error'
           })
-          document.getElementById("okButton").blur()
         }
       })
     },
     onAdd() {
+      document.getElementById("okButton").blur()
       this.$refs.addForm.validate(flg => {
         if (flg) {
           this.add()
         }
       })
     },
-    //关闭新增对话框后重置表单并刷新页面
+    //关闭新增对话框后重置表单
     closeReset() {
       this.$refs.addForm.resetFields()
-      this.reload()
+    },
+    //获取批量删除所选数据
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    //批量删除
+    async delete() {
+      await this.request.post('/mg/deleteEquipmentInfo', {
+        'list': this.multipleSelection,
+      }).then(res => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '操作成功！',
+            type: 'success'
+          })
+          this.dialogFormVisible = false
+          //刷新页面
+          this.reload()
+        } else if (!res.error) {
+          this.$message({
+            showClose: true,
+            message: res.errMsg,
+            type: 'error'
+          })
+        }
+      })
+    },
+    //判断是否选择数据
+    ifDelete() {
+      document.getElementById("deleteButton").blur()
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          showClose: true,
+          message: "请至少选择一条数据！",
+          type: 'error'
+        })
+      } else {
+        this.dialogVisible = true
+      }
     },
     onDelete() {
+      document.getElementById("OkButton").blur()
+      this.delete()
     }
   }
 }

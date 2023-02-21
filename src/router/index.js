@@ -26,12 +26,12 @@ const routes = [
         component: () =>import('../views/User.vue')
       },
       {
-        path: 'queryApply',
+        path: 'apply',
         name: 'apply',
         component: () =>import('../views/Apply.vue'),
       },
       {
-        path: 'queryChange',
+        path: 'change',
         name: 'change',
         component: () =>import('../views/Change.vue'),
       },

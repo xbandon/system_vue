@@ -30,3 +30,7 @@
 .el-dialog__body {
     padding: 30px 70px;
 }
+
+.el-link {
+    font-size: 13px;
+}

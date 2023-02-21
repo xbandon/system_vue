@@ -26,7 +26,7 @@
 
     <div class="background" style="margin-top: 50px">
       <div style="padding: 30px 20px">
-        <el-table :data="tableData" border stripe
+        <el-table :data="tableData" border stripe max-height="450px"
                   :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
           <el-table-column prop="equipmentName" label="设备名称"></el-table-column>

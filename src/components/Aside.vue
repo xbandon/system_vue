@@ -17,8 +17,8 @@
       <el-menu-item index="queryEquipment">设备查看</el-menu-item>
       <el-submenu index="1-2">
         <template slot="title">审批管理</template>
-        <el-menu-item index="queryApply">设备申请</el-menu-item>
-        <el-menu-item index="queryChange">设备更换</el-menu-item>
+        <el-menu-item index="apply">设备申请</el-menu-item>
+        <el-menu-item index="change">设备更换</el-menu-item>
       </el-submenu>
       <el-menu-item index="queryScrap">报废记录</el-menu-item>
     </el-submenu>
