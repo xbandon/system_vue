@@ -122,8 +122,8 @@ export default {
       gridData: [], //对话框内表格数据
       radio: '', //是否选中某个单选框
       //传入参数
-      eName: '',
       keyId: '',
+      eName: '',
       eType: '',
       approvalStatusCode: '',
       dialogFormVisible: false, //申请驳回对话框
@@ -133,7 +133,7 @@ export default {
       //表单校验规则
       formRules: {
         approvalLog: [{required: true, message: '申请驳回原因不能为空', trigger: 'blur'}]
-      },
+      }
     }
   },
   created() {
