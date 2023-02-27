@@ -32,8 +32,11 @@
         <el-table :data="tableData" border stripe
                   :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
-          <el-table-column label="操作">
-            <el-link type="primary" :underline="false">查看<i class="el-icon-view el-icon--right"></i></el-link>
+          <el-table-column label="操作" prop="keyId">
+            <template v-slot:="{row}">
+              <el-link type="primary" :underline="false" @click=query(row.keyId,row.equipmentName)>查看<i
+                  class="el-icon-view el-icon--right"></i></el-link>
+            </template>
           </el-table-column>
           <el-table-column prop="keyId" label="主键" v-if="false"></el-table-column>
           <el-table-column prop="equipmentName" label="设备名称"></el-table-column>
@@ -56,12 +59,56 @@
         </div>
       </div>
     </div>
+
+    <el-dialog title="空闲设备库存" :visible.sync="dialogTableVisible" width="50%">
+      <div>
+        <el-table :data="gridData" border stripe
+                  :header-cell-style="{color:'gray', 'text-align': 'center', 'font-size': '13px'}"
+                  :cell-style="{'text-align': 'center', 'font-size': '13px'}">
+          <el-table-column type="index" width="55">
+            <template scope="scope">
+              <el-radio :label="scope.$index"
+                        v-model="radio"
+                        @change.native="getCurrentRow(scope.row)">&nbsp;
+              </el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column property="equipmentName" label="设备名称"></el-table-column>
+          <el-table-column property="equipmentType" label="设备型号"></el-table-column>
+        </el-table>
+      </div>
+      <div style="display: flex">
+        <div slot="footer" class="dialog-footer" style="padding-top: 30px; margin: auto">
+          <el-button id="passButton" type="primary" style="font-size: 13px" @click="onPass">通 过</el-button>
+          <el-button type="danger" style="margin-left: 70px; font-size: 13px" @click="dialogFormVisible = true">驳 回
+          </el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="申请驳回" :visible.sync="dialogFormVisible" @close="closeReset" width="30%">
+      <el-form :model="form" :rules="formRules" ref="form" label-width="80px">
+        <el-form-item label="备注" prop="approvalLog">
+          <el-input v-model.trim="form.approvalLog" placeholder="请输入申请驳回原因"
+                    autocomplete="off"
+                    style="width: 300px"
+                    type="textarea" :rows="2"
+                    maxlength="20" show-word-limit clearable>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button id="okButton" type="primary" style="margin-left: 30px" @click="unPass">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 export default {
   name: "Approving",
+  inject: ["reload"],
   data() {
     return {
       tableData: [], //表格数据 默认为空
@@ -70,7 +117,23 @@ export default {
       total: 0, //数据总数
       //查询列表
       userName: '',
-      equipmentName: ''
+      equipmentName: '',
+      dialogTableVisible: false, //查看对话框
+      gridData: [], //对话框内表格数据
+      radio: '', //是否选中某个单选框
+      //传入参数
+      eName: '',
+      keyId: '',
+      eType: '',
+      approvalStatusCode: '',
+      dialogFormVisible: false, //申请驳回对话框
+      form: {
+        approvalLog: ''
+      },
+      //表单校验规则
+      formRules: {
+        approvalLog: [{required: true, message: '申请驳回原因不能为空', trigger: 'blur'}]
+      },
     }
   },
   created() {
@@ -93,7 +156,7 @@ export default {
         'rows': this.pageSize,
         'page': this.currentPage,
         'userName': this.userName,
-        'equipmentName': this.equipmentName,
+        'equipmentName': this.equipmentName
       }).then(res => {
         this.tableData = res.list
         this.total = res.total
@@ -113,6 +176,77 @@ export default {
       this.load()
       document.getElementById("resetButton").blur()
     },
+    //查询空闲设备
+    async queryFree() {
+      await this.request.post('/mg/queryFreeEquipments', {
+        'equipmentName': this.eName
+      }).then(res => {
+        this.gridData = res.list
+      })
+    },
+    //获取主键，设备名称
+    query(keyId, eName) {
+      this.dialogTableVisible = true
+      this.keyId = keyId
+      this.eName = eName
+      this.queryFree()
+    },
+    //获取设备型号
+    getCurrentRow(row) {
+      this.eType = row.equipmentType
+    },
+    async pass() {
+      await this.request.post('/mg/approveApplications', {
+        'keyId': this.keyId,
+        'equipmentType': this.eType,
+        'approvalStatusCode': this.approvalStatusCode,
+        'approvalLog': this.form.approvalLog
+      }).then(res => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '操作成功！',
+            type: 'success'
+          })
+          this.dialogTableVisible = false
+          //刷新页面
+          this.reload()
+        } else if (!res.error) {
+          this.$message({
+            showClose: true,
+            message: res.errMsg,
+            type: 'error'
+          })
+        }
+      })
+    },
+    onPass() {
+      document.getElementById("passButton").blur()
+      //判断是否选择数据
+      if (this.radio === '') {
+        this.$message({
+          showClose: true,
+          message: "请选择一条数据！",
+          type: 'error'
+        })
+      } else {
+        this.approvalStatusCode = 1
+        this.pass()
+      }
+    },
+    unPass() {
+      document.getElementById("okButton").blur()
+      this.$refs.form.validate(flg => {
+        if (flg) {
+          this.approvalStatusCode = 2
+          this.pass()
+        }
+      })
+    },
+    //关闭申请驳回对话框后重置表单
+    closeReset() {
+      this.$refs.form.resetFields()
+    }
   }
 }
 </script>

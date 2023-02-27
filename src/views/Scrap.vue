@@ -24,7 +24,7 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="报废人：">
-                <el-input v-model.trim="scrapUser" placeholder="请输入设备型号" size="medium" clearable></el-input>
+                <el-input v-model.trim="scrapUser" placeholder="请输入报废人姓名" size="medium" clearable></el-input>
               </el-form-item>
             </el-col>
           </el-row>
