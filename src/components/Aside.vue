@@ -27,8 +27,8 @@
     </el-menu-item>
     <el-submenu index="3">
       <template slot="title"><i class="el-icon-setting"></i><span slot="title">系统设置</span></template>
-      <el-menu-item index="3-1">权限管理</el-menu-item>
-      <el-menu-item index="3-2">字典维护</el-menu-item>
+      <el-menu-item index="limit">权限管理</el-menu-item>
+      <el-menu-item index="dictionary">字典维护</el-menu-item>
     </el-submenu>
 
   </el-menu>

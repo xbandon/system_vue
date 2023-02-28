@@ -28,18 +28,28 @@ const routes = [
       {
         path: 'apply',
         name: 'apply',
-        component: () =>import('../views/Apply.vue'),
+        component: () =>import('../views/Apply.vue')
       },
       {
         path: 'change',
         name: 'change',
-        component: () =>import('../views/Change.vue'),
+        component: () =>import('../views/Change.vue')
       },
       {
         path: 'queryScrap',
         name: 'scrap',
-        component: () =>import('../views/Scrap.vue'),
+        component: () =>import('../views/Scrap.vue')
       },
+      {
+        path: 'limit',
+        name: 'limit',
+        component: () =>import('../views/Limit.vue')
+      },
+      {
+        path: 'dictionary',
+        name: 'dictionary',
+        component: () =>import('../views/Dictionary.vue')
+      }
     ]
   },
 ]
