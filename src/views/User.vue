@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <div class="background" style="margin-top: 50px">
+    <div class="background" style="margin-top: 30px">
       <div style="padding: 20px 20px">
         <div style="margin-bottom: 15px">
           <el-button type="primary" style="font-size: 13px" @click="dialogFormVisible=true">新增员工 <i
@@ -71,13 +71,13 @@
           <el-button id="deleteButton" type="danger" style="font-size: 13px" @click="ifDelete">批量删除 <i
               class="el-icon-remove-outline"></i></el-button>
         </div>
-        <el-table :data="tableData" border stripe max-height="450px"
-                  :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
+        <el-table :data="tableData" border max-height="450px"
+                  :header-cell-style="{background: 'whitesmoke', color:'dimgray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column label="操作">
-            <el-link type="primary" :underline="false">密码重置<i class="el-icon-refresh el-icon--right"></i></el-link>
+          <el-table-column label="操作" width="150px">
+            <el-link type="primary" :underline="false">密码重置</el-link>
           </el-table-column>
           <el-table-column prop="userCode" label="员工编号" v-if="false"></el-table-column>
           <el-table-column prop="userName" label="员工姓名"></el-table-column>
@@ -90,6 +90,8 @@
           <el-table-column prop="accountStatus" label="就职状态"></el-table-column>
           <el-table-column prop="entryTime" label="入职时间"></el-table-column>
           <el-table-column prop="quitTime" label="离职时间"></el-table-column>
+          <el-table-column prop="updateUser" label="更新人"></el-table-column>
+          <el-table-column prop="updateTime" label="更新时间" width="200px"></el-table-column>
         </el-table>
       </div>
       <div style="padding-left: 25px; padding-right: 25px; padding-bottom: 30px; display: flex">
@@ -98,7 +100,7 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
               :current-page="currentPage"
-              :page-sizes="[5, 10, 15, 20]"
+              :page-sizes="[10, 15, 20, 25]"
               :page-size="pageSize"
               layout="total, sizes, prev, pager, next, jumper"
               :total="total">
@@ -156,7 +158,7 @@ export default {
     return {
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
-      pageSize: 5, //每页显示条数
+      pageSize: 10, //每页显示条数
       total: 0, //数据总数
       //日期选择器
       pickerOptions: {

@@ -7,7 +7,7 @@
     <el-dropdown style="cursor: pointer">
       <span style="margin-right: 30px">Admin</span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item>个人信息</el-dropdown-item>
+        <el-dropdown-item>修改密码</el-dropdown-item>
         <el-dropdown-item>注销登录</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>

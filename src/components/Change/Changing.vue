@@ -27,16 +27,16 @@
       </div>
     </div>
 
-    <div class="background" style="margin-top: 50px">
+    <div class="background" style="margin-top: 30px">
       <div style="padding: 30px 20px">
-        <el-table :data="tableData" border stripe
-                  :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
+        <el-table :data="tableData" border
+                  :header-cell-style="{background: 'whitesmoke', color:'dimgray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
-          <el-table-column label="操作">
+          <el-table-column label="操作" width="150px">
             <template v-slot:="{row}">
               <el-link type="primary" :underline="false"
                        @click=query(row.keyId,row.srcEquipmentName,row.srcEquipmentType,row.equipmentName,row.applyReason)>
-                查看<i class="el-icon-view el-icon--right"></i></el-link>
+                查看</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="keyId" label="主键" v-if="false"></el-table-column>
@@ -54,7 +54,7 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
               :current-page="currentPage"
-              :page-sizes="[5, 10, 15, 20]"
+              :page-sizes="[10, 15, 20, 20]"
               :page-size="pageSize"
               layout="total, sizes, prev, pager, next, jumper"
               :total="total">
@@ -116,7 +116,7 @@ export default {
     return {
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
-      pageSize: 5, //每页显示条数
+      pageSize: 10, //每页显示条数
       total: 0, //数据总数
       //查询列表
       userName: '',

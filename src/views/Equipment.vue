@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <div class="background" style="margin-top: 50px">
+    <div class="background" style="margin-top: 30px">
       <div style="padding: 20px 20px">
         <div style="margin-bottom: 15px">
           <el-button type="primary" style="font-size: 13px" @click="dialogFormVisible=true">新增设备 <i
@@ -56,8 +56,8 @@
           <el-button id="deleteButton" type="danger" style="font-size: 13px" @click=ifDelete>批量删除 <i
               class="el-icon-remove-outline"></i></el-button>
         </div>
-        <el-table :data="tableData" border stripe max-height="450px"
-                  :header-cell-style="{background: 'lightgray', color:'gray', 'text-align': 'center', 'font-size': '13px'}"
+        <el-table :data="tableData" border max-height="450px"
+                  :header-cell-style="{background: 'whitesmoke', color:'dimgray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
@@ -79,7 +79,7 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
               :current-page="currentPage"
-              :page-sizes="[5, 10, 15, 20]"
+              :page-sizes="[10, 15, 20, 25]"
               :page-size="pageSize"
               layout="total, sizes, prev, pager, next, jumper"
               :total="total">
@@ -122,7 +122,7 @@ export default {
     return {
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
-      pageSize: 5, //每页显示条数
+      pageSize: 10, //每页显示条数
       total: 0, //数据总数
       //查询列表
       equipmentName: '',

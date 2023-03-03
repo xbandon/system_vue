@@ -11,47 +11,47 @@ const routes = [
     component: HomeView,
     children: [
       {
-        path: 'queryStock',
+        path: 'Stock',
         name: 'stock',
         component: () =>import('../views/Stock.vue')
       },
       {
-        path: 'queryEquipment',
+        path: 'Equipment',
         name: 'equipment',
         component: () =>import('../views/Equipment.vue')
       },
       {
-        path: 'queryUser',
+        path: 'User',
         name: 'user',
         component: () =>import('../views/User.vue')
       },
       {
-        path: 'apply',
+        path: 'Apply',
         name: 'apply',
         component: () =>import('../views/Apply.vue')
       },
       {
-        path: 'change',
+        path: 'Change',
         name: 'change',
         component: () =>import('../views/Change.vue')
       },
       {
-        path: 'queryScrap',
+        path: 'Scrap',
         name: 'scrap',
         component: () =>import('../views/Scrap.vue')
       },
       {
-        path: 'limit',
-        name: 'limit',
-        component: () =>import('../views/Limit.vue')
-      },
-      {
-        path: 'dictionary',
+        path: 'Dictionary',
         name: 'dictionary',
         component: () =>import('../views/Dictionary.vue')
       }
     ]
   },
+  {
+    path: 'Login',
+    name: 'login',
+    component: () =>import('../views/Login.vue')
+  }
 ]
 
 const router = new VueRouter({
