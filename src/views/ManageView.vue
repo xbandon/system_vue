@@ -23,7 +23,7 @@ import Aside from "@/components/Aside.vue";
 import Header from "@/components/Header.vue";
 
 export default {
-  name: 'HomeView',
+  name: 'ManageView',
   components: {Header, Aside},
   data() {
     return {

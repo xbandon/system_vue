@@ -119,7 +119,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="修改字典" :visible.sync="editDialogFormVisible" width="30%">
+    <el-dialog title="修改字典" :visible.sync="editDialogFormVisible" @close="editReset" width="30%">
       <el-form :model="editForm" :rules="editRules" ref="editForm" label-width="100px">
         <el-form-item label="字典类型：" prop="dicType">
           <el-select v-model="editForm.dicType" style="width: 300px" clearable
@@ -307,6 +307,10 @@ export default {
         }
       })
     },
+    editReset(){
+      this.reload()
+    },
+    //传入数据
     handleEditFlag(row) {
       this.dialogVisible = true
       this.keyId = row.keyId
@@ -317,7 +321,7 @@ export default {
         this.flag = '0'
       }
     },
-    //
+    //启用/停用
     async editFlag() {
       await this.request.post('/mg/editDictionaryDelFlag', {
         'keyId': this.keyId,

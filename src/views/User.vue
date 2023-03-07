@@ -19,8 +19,8 @@
             <el-col :span="6">
               <el-form-item label="角色：">
                 <el-select v-model="roleCode" placeholder="请选择角色" size="medium" clearable>
-                  <el-option label="管理员" value="1"></el-option>
-                  <el-option label="普通用户" value="2"></el-option>
+                  <el-option label="仓库管理员" value="1"></el-option>
+                  <el-option label="普通员工" value="2"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -77,7 +77,11 @@
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column label="操作" width="150px">
-            <el-link type="primary" :underline="false">密码重置</el-link>
+            <template v-slot="{row}">
+              <el-link type="primary" :underline="false" @click="handleRole(row)">员工授权</el-link>
+              |
+              <el-link type="danger" :underline="false" @click="handleReset(row)">密码重置</el-link>
+            </template>
           </el-table-column>
           <el-table-column prop="userCode" label="员工编号" v-if="false"></el-table-column>
           <el-table-column prop="userName" label="员工姓名"></el-table-column>
@@ -127,8 +131,8 @@
         </el-form-item>
         <el-form-item label="角色" prop="roleCode">
           <el-select v-model="form.roleCode" placeholder="请选择角色" style="width: 300px" clearable>
-            <el-option label="管理员" value="1"></el-option>
-            <el-option label="普通用户" value="2"></el-option>
+            <el-option label="仓库管理员" value="1"></el-option>
+            <el-option label="普通员工" value="2"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -145,6 +149,30 @@
             <el-button id="OkButton" type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
             </span>
     </el-dialog>
+
+    <el-dialog title="员工授权" :visible.sync="roleFormVisible" @close="roleReset" width="30%">
+      <el-form :model="role" :rules="roleRules" ref="roleForm" label-width="80px">
+        <el-form-item label="角色" prop="role">
+          <el-select v-model="role.role" placeholder="请选择角色" style="width: 300px" clearable>
+            <el-option label="仓库管理员" value="1"></el-option>
+            <el-option label="普通员工" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="roleFormVisible = false">取 消</el-button>
+        <el-button id="sButton" type="primary" style="margin-left: 30px" @click="onSetRole">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="提示" :visible.sync="resetVisible" width="20%">
+      <span>是否确认重置？</span>
+      <span slot="footer" class="dialog-footer">
+            <el-button @click="resetVisible = false">取 消</el-button>
+            <el-button id="rButton" type="primary" style="margin-left: 30px" @click="onResetPassword">确 定</el-button>
+            </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -232,7 +260,15 @@ export default {
       //删除对话框
       dialogVisible: false,
       //存储批量删除所选数据
-      multipleSelection: []
+      multipleSelection: [],
+      //员工授权
+      roleFormVisible: false,
+      keyId: '',
+      role: [],
+      roleRules: {
+        role: [{required: true, message: '角色不能为空', trigger: 'blur'}]
+      },
+      resetVisible: false
     }
   },
   created() {
@@ -363,6 +399,79 @@ export default {
     onDelete() {
       document.getElementById("OkButton").blur()
       this.delete()
+    },
+    //数据回显
+    handleRole(row){
+      this.roleFormVisible = true
+      this.role = row
+      this.keyId = row.userCode
+    },
+    //员工授权
+    async setRole() {
+      await this.request.post('/mg/editRole', {
+        'userCode': this.keyId,
+        'roleCode': this.role.role
+      }).then(res => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '操作成功！',
+            type: 'success'
+          })
+          this.dialogFormVisible = false
+          //刷新页面
+          this.reload()
+        } else if (!res.error) {
+          this.$message({
+            showClose: true,
+            message: res.errMsg,
+            type: 'error'
+          })
+        }
+      })
+    },
+    onSetRole() {
+      document.getElementById("sButton").blur()
+      this.$refs.roleForm.validate(flg => {
+        if (flg) {
+          this.setRole()
+        }
+      })
+    },
+    roleReset(){
+      this.reload()
+    },
+    //获取Id
+    handleReset(row){
+      this.resetVisible = true
+      this.keyId = row.userCode
+    },
+    //密码重置
+    async resetPassword() {
+      await this.request.post('/mg/resetPassword', {
+        'userCode': this.keyId
+      }).then(res => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '操作成功！',
+            type: 'success'
+          })
+          this.dialogFormVisible = false
+          //刷新页面
+          this.reload()
+        } else if (!res.error) {
+          this.$message({
+            showClose: true,
+            message: res.errMsg,
+            type: 'error'
+          })
+        }
+      })
+    },
+    onResetPassword() {
+      document.getElementById("rButton").blur()
+      this.resetPassword()
     }
   }
 }
