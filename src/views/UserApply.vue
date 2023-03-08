@@ -46,18 +46,13 @@
 
     <div class="background" style="margin-top: 30px">
       <div style="padding: 20px 20px">
-        <div style="margin-bottom: 15px">
-          <el-button type="primary" style="font-size: 13px" @click="dialogFormVisible=true">设备申请 <i
-              class="el-icon-circle-plus-outline"></i></el-button>
-        </div>
         <el-table :data="tableData" border max-height="450px"
                   :header-cell-style="{background: 'whitesmoke', color:'dimgray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
           <el-table-column label="操作" width="150px">
             <template v-slot="{row}">
-              <el-link type="primary" :underline="false" @click="handleReceive(row)">
-                <span v-if="row.receiveStatusCode === '1'">接收</span>
-                <span v-if="row.receiveStatusCode === '2'">已接收</span>
+              <el-link type="primary" :underline="false" @click="onReceive(row)">
+                <span v-if="row.receiveStatusCode === 1">接收</span>
               </el-link>
             </template>
           </el-table-column>
@@ -95,8 +90,6 @@
 
 <script>
 
-import filter from "@/common/filter";
-
 export default {
   name: "UserApply",
   inject: ["reload"],
@@ -110,6 +103,9 @@ export default {
       equipmentName: '',
       approvalStatusCode: '',
       receiveStatusCode: '',
+      //接收列表
+      keyId: '',
+      equipmentType: ''
     }
   },
   created() {
@@ -155,6 +151,36 @@ export default {
       this.reset()
       this.load()
     },
+    //接收
+    async receive() {
+      await this.request.post('/user/receiveApplyEquipment', {
+        'rows': this.pageSize,
+        'page': this.currentPage,
+        'keyId': this.keyId,
+        'equipmentType': this.equipmentType
+      }).then(res => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '操作成功！',
+            type: 'success'
+          })
+          //刷新页面
+          this.reload()
+        } else if (!res.error) {
+          this.$message({
+            showClose: true,
+            message: res.errMsg,
+            type: 'error'
+          })
+        }
+      })
+    },
+    onReceive(row) {
+      this.keyId = row.keyId
+      this.equipmentType = row.equipmentType
+      this.receive()
+    }
   }
 }
 </script>

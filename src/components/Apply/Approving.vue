@@ -34,7 +34,7 @@
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
           <el-table-column label="操作" prop="keyId" width="150px">
             <template v-slot:="{row}">
-              <el-link type="primary" :underline="false" @click=query(row.keyId,row.equipmentName)>查看 </el-link>
+              <el-link type="primary" :underline="false" @click=query(row.keyId,row.equipmentName)>查看</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="keyId" label="主键" v-if="false"></el-table-column>
@@ -78,7 +78,8 @@
       </div>
       <div style="display: flex">
         <div slot="footer" class="dialog-footer" style="padding-top: 30px; margin: auto">
-          <el-button id="passButton" type="primary" style="font-size: 13px" @click="onPass">通 过</el-button>
+          <el-button id="passButton" type="primary" style="font-size: 13px" @click="onPass" :disabled="passFlg">通 过
+          </el-button>
           <el-button type="danger" style="margin-left: 70px; font-size: 13px" @click="dialogFormVisible = true">驳 回
           </el-button>
         </div>
@@ -125,6 +126,7 @@ export default {
       eName: '',
       eType: '',
       approvalStatusCode: '',
+      passFlg: false,
       dialogFormVisible: false, //申请驳回对话框
       form: {
         approvalLog: ''
@@ -180,7 +182,13 @@ export default {
       await this.request.post('/mg/queryFreeEquipments', {
         'equipmentName': this.eName
       }).then(res => {
-        this.gridData = res.list
+        if (res.success) {
+          this.gridData = res.list
+          this.passFlg = false
+        } else {
+          this.gridData = res.list
+          this.passFlg = true
+        }
       })
     },
     //获取主键，设备名称
@@ -229,7 +237,7 @@ export default {
           type: 'error'
         })
       } else {
-        this.approvalStatusCode = 1
+        this.approvalStatusCode = 2
         this.pass()
       }
     },
@@ -237,7 +245,7 @@ export default {
       document.getElementById("okButton").blur()
       this.$refs.form.validate(flg => {
         if (flg) {
-          this.approvalStatusCode = 2
+          this.approvalStatusCode = 3
           this.pass()
         }
       })
