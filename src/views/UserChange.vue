@@ -3,7 +3,7 @@
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item :to="{ path: '/userView' }">主页</el-breadcrumb-item>
-        <el-breadcrumb-item>设备申请记录</el-breadcrumb-item>
+        <el-breadcrumb-item>设备更换记录</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
 
@@ -57,6 +57,8 @@
             </template>
           </el-table-column>
           <el-table-column prop="keyId" label="主键" v-if="false"></el-table-column>
+          <el-table-column prop="srcEquipmentName" label="原设备名称"></el-table-column>
+          <el-table-column prop="srcEquipmentType" label="原设备型号"></el-table-column>
           <el-table-column prop="equipmentName" label="设备名称"></el-table-column>
           <el-table-column prop="equipmentType" label="设备型号"></el-table-column>
           <el-table-column prop="applyReason" label="申请原因"></el-table-column>
@@ -91,7 +93,7 @@
 <script>
 
 export default {
-  name: "UserApply",
+  name: "UserChange",
   inject: ["reload"],
   data() {
     return {
@@ -124,7 +126,7 @@ export default {
     },
     //查询
     async load() {
-      await this.request.post('/user/queryApplyRecords', {
+      await this.request.post('/user/queryChangeRecords', {
         'rows': this.pageSize,
         'page': this.currentPage,
         'equipmentName': this.equipmentName,
@@ -153,7 +155,7 @@ export default {
     },
     //接收
     async receive() {
-      await this.request.post('/user/receiveApplyEquipment', {
+      await this.request.post('/user/receiveChangeEquipment', {
         'rows': this.pageSize,
         'page': this.currentPage,
         'keyId': this.keyId,

@@ -53,8 +53,8 @@ const routes = [
         component: () => import('../views/Login.vue')
     },
     {
-        path: '/UserView',
-        name: 'UserView',
+        path: '/userView',
+        name: 'userView',
         component: () => import('../views/UserView.vue'),
         children: [
             {
@@ -66,6 +66,11 @@ const routes = [
                 path: '/userApply',
                 name: 'userApply',
                 component: () => import('../views/UserApply.vue')
+            },
+            {
+                path: '/userChange',
+                name: 'userChange',
+                component: () => import('../views/UserChange.vue')
             },
         ]
     }
