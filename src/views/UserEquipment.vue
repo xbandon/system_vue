@@ -38,7 +38,7 @@
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
           <el-table-column label="操作" width="150px">
             <template v-slot="{row}">
-              <el-link type="primary" :underline="false" @click="handleChange(row)">更换 </el-link>
+              <el-link type="primary" :underline="false" @click="handleChange(row)">更换</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="keyId" label="设备编号" v-if="false"></el-table-column>
@@ -65,7 +65,7 @@
       <el-form :model="form" :rules="formRules" ref="applyForm" label-width="80px">
         <el-form-item label="设备名称" prop="equipmentName">
           <el-select v-model.trim="form.equipmentName" placeholder="请输入设备名称" style="width: 300px" clearable>
-            <el-option v-for="item in options" :value="item.equipmentName">
+            <el-option v-for="(item,index) in options" :value="item.equipmentName" :key="index">
               {{ item.equipmentName }}
             </el-option>
           </el-select>
@@ -89,7 +89,7 @@
       <el-form :model="change" :rules="changeRules" ref="changeForm" label-width="80px">
         <el-form-item label="设备名称" prop="equipmentName">
           <el-select v-model.trim="change.equipmentName" placeholder="请输入设备名称" style="width: 300px" clearable>
-            <el-option v-for="item in options" :value="item.equipmentName">
+            <el-option v-for="(item,index) in options" :value="item.equipmentName" :key="index">
               {{ item.equipmentName }}
             </el-option>
           </el-select>

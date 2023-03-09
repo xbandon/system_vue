@@ -65,7 +65,7 @@
                   :header-cell-style="{color:'gray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
           <el-table-column type="index" width="55">
-            <template scope="scope">
+            <template slot-scope="scope">
               <el-radio :label="scope.$index"
                         v-model="radio"
                         @change.native="getCurrentRow(scope.row)">&nbsp;
