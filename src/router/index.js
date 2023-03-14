@@ -1,14 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ManageView from "@/views/ManageView.vue";
+import Login from "@/views/Login.vue";
 
 Vue.use(VueRouter)
 
 const routes = [
     {
         path: '/',
-        name: 'home',
-        component: ManageView,
+        name: 'login',
+        component: Login
+    },
+    {
+        path: '/manageView',
+        name: 'manageView',
+        component: () => import('../views/ManageView.vue'),
         children: [
             {
                 path: 'stock',
@@ -46,11 +51,6 @@ const routes = [
                 component: () => import('../views/Dictionary.vue')
             }
         ]
-    },
-    {
-        path: '/login',
-        name: 'login',
-        component: () => import('../views/Login.vue')
     },
     {
         path: '/userView',

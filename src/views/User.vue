@@ -2,7 +2,7 @@
   <div>
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">主页</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/manageView' }">主页</el-breadcrumb-item>
         <el-breadcrumb-item>员工管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -119,9 +119,9 @@
           <el-input v-model.trim="form.userName" autocomplete="off" style="width: 300px" clearable></el-input>
         </el-form-item>
         <el-form-item label="账户名" prop="loginName">
-          <el-input v-model.trim="form.loginName" autocomplete="off" placeholder="允许输入数字、英文字母和下划线"
+          <el-input v-model.trim="form.loginName" autocomplete="off" placeholder="允许输入5-10个字符"
                     style="width: 300px"
-                    maxlength="10" show-word-limit clearable></el-input>
+                    clearable></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model.trim="form.email" autocomplete="off" style="width: 300px" clearable></el-input>
@@ -238,8 +238,9 @@ export default {
         loginName: [
           {required: true, message: '账户名不能为空', trigger: 'blur'},
           {
-            pattern: /^[0-9a-zA-Z_]*$/g,
-            message: '请输入正确的账户名',
+            min: 5,
+            max: 10,
+            message: '账户名长度不符',
             trigger: 'change'
           },
         ],
