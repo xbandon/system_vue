@@ -9,12 +9,11 @@
           <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
                    class="demo-ruleForm">
             <el-form-item label="" prop="loginName" style="width: 400px">
-              <el-input prefix-icon="el-icon-user" type="text" size="medium" v-model.trim="ruleForm.loginName"
-                        autocomplete="off" clearable></el-input>
+              <el-input prefix-icon="el-icon-user" size="medium" v-model.trim="ruleForm.loginName"></el-input>
             </el-form-item>
             <el-form-item label="" prop="password" style="width: 400px">
-              <el-input prefix-icon="el-icon-lock" type="password" size="medium" v-model.trim="ruleForm.password"
-                        autocomplete="off" clearable></el-input>
+              <el-input prefix-icon="el-icon-lock" size="medium" v-model.trim="ruleForm.password"
+                        show-password></el-input>
             </el-form-item>
             <el-form-item>
 
@@ -42,7 +41,7 @@ export default {
         password: ''
       },
       rules: {
-        loginName: [{required: true, message: '用户名不能为空', trigger: 'change'}],
+        loginName: [{required: true, message: '账户名不能为空', trigger: 'change'}],
         password: [{required: true, message: '密码不能为空', trigger: 'change'}]
       }
     };
@@ -51,11 +50,19 @@ export default {
     submitForm() {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
-          this.request.post('/login',{
-            loginName: this.ruleForm.loginName,
-            pass: this.ruleForm.password
+          this.request.post('/login', {
+            'loginName': this.ruleForm.loginName,
+            'loginPassword': this.ruleForm.password
           }).then(res => {
-
+            if (res.success) {
+              this.$router.push('/manageView')
+            } else if (!res.error) {
+              this.$message({
+                showClose: true,
+                message: res.errMsg,
+                type: 'error'
+              })
+            }
           })
         } else {
           console.log('error submit!!');
@@ -72,7 +79,7 @@ export default {
 
 <style scoped>
 .el-row {
-  background: #FAFAFA;
+  background: linear-gradient(to bottom right, whitesmoke, #B3C0D1);
   height: 100vh;
   display: flex;
   align-items: center;

@@ -2,7 +2,7 @@
   <div>
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/userView' }">主页</el-breadcrumb-item>
+        <el-breadcrumb-item>主页</el-breadcrumb-item>
         <el-breadcrumb-item>设备申请记录</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -49,7 +49,7 @@
         <el-table :data="tableData" border max-height="450px"
                   :header-cell-style="{background: 'whitesmoke', color:'dimgray', 'text-align': 'center', 'font-size': '13px'}"
                   :cell-style="{'text-align': 'center', 'font-size': '13px'}">
-          <el-table-column label="操作" width="150px">
+          <el-table-column label="操作" width="100px">
             <template v-slot="{row}">
               <el-link type="primary" :underline="false" @click="onReceive(row)">
                 <span v-if="row.receiveStatusCode === 1">接收</span>

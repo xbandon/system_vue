@@ -2,7 +2,7 @@
   <div>
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/manageView' }">主页</el-breadcrumb-item>
+        <el-breadcrumb-item>主页</el-breadcrumb-item>
         <el-breadcrumb-item>员工管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -78,9 +78,11 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column label="操作" width="150px">
             <template v-slot="{row}">
-              <el-link type="primary" :underline="false" @click="handleRole(row)">员工授权</el-link>
+              <el-link type="primary" :underline="false" @click="handleRole(row)">授权</el-link>
               |
-              <el-link type="danger" :underline="false" @click="handleReset(row)">密码重置</el-link>
+              <el-link type="warning" :underline="false" @click="handleReset(row)">密码重置</el-link>
+              |
+              <el-link type="danger" :underline="false" @click="handleQuit(row)" :disabled="quit(row)">离职</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="userCode" label="员工编号" v-if="false"></el-table-column>
@@ -170,6 +172,14 @@
       <span slot="footer" class="dialog-footer">
             <el-button @click="resetVisible = false">取 消</el-button>
             <el-button id="rButton" type="primary" style="margin-left: 30px" @click="onResetPassword">确 定</el-button>
+            </span>
+    </el-dialog>
+
+    <el-dialog title="提示" :visible.sync="visible" width="20%">
+      <span>是否为该员工办理离职？</span>
+      <span slot="footer" class="dialog-footer">
+            <el-button @click="visible = false">取 消</el-button>
+            <el-button id="qButton" type="primary" style="margin-left: 30px" @click="onQuit">确 定</el-button>
             </span>
     </el-dialog>
 
@@ -269,7 +279,8 @@ export default {
       roleRules: {
         role: [{required: true, message: '角色不能为空', trigger: 'blur'}]
       },
-      resetVisible: false
+      resetVisible: false,
+      visible: false
     }
   },
   created() {
@@ -402,7 +413,7 @@ export default {
       this.delete()
     },
     //数据回显
-    handleRole(row){
+    handleRole(row) {
       this.roleFormVisible = true
       this.role = row
       this.keyId = row.userCode
@@ -439,11 +450,11 @@ export default {
         }
       })
     },
-    roleReset(){
+    roleReset() {
       this.reload()
     },
     //获取Id
-    handleReset(row){
+    handleReset(row) {
       this.resetVisible = true
       this.keyId = row.userCode
     },
@@ -473,6 +484,44 @@ export default {
     onResetPassword() {
       document.getElementById("rButton").blur()
       this.resetPassword()
+    },
+    //离职
+    handleQuit(row) {
+      this.visible = true
+      this.keyId = row.userCode
+    },
+    async quitUser() {
+      await this.request.post('/mg/quitUser', {
+        'userCode': this.keyId
+      }).then(res => {
+        if (res.success) {
+          this.$message({
+            showClose: true,
+            message: '操作成功！',
+            type: 'success'
+          })
+          this.dialogFormVisible = false
+          //刷新页面
+          this.reload()
+        } else if (!res.error) {
+          this.$message({
+            showClose: true,
+            message: res.errMsg,
+            type: 'error'
+          })
+        }
+      })
+    },
+    onQuit() {
+      document.getElementById("qButton").blur()
+      this.quitUser()
+    },
+    quit(row){
+      if(row.accountStatusCode === 1){
+        return true
+      }else {
+        return false
+      }
     }
   }
 }

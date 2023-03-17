@@ -2,7 +2,7 @@
   <div>
     <div style="margin-top: 5px; margin-bottom: 20px">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/userView' }">主页</el-breadcrumb-item>
+        <el-breadcrumb-item>主页</el-breadcrumb-item>
         <el-breadcrumb-item>设备查看</el-breadcrumb-item>
       </el-breadcrumb>
     </div>

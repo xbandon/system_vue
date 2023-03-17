@@ -16,37 +16,37 @@ const routes = [
         component: () => import('../views/ManageView.vue'),
         children: [
             {
-                path: 'stock',
+                path: '/stock',
                 name: 'stock',
                 component: () => import('../views/Stock.vue')
             },
             {
-                path: 'equipment',
+                path: '/equipment',
                 name: 'equipment',
                 component: () => import('../views/Equipment.vue')
             },
             {
-                path: 'apply',
+                path: '/apply',
                 name: 'apply',
                 component: () => import('../views/Apply.vue')
             },
             {
-                path: 'change',
+                path: '/change',
                 name: 'change',
                 component: () => import('../views/Change.vue')
             },
             {
-                path: 'scrap',
+                path: '/scrap',
                 name: 'scrap',
                 component: () => import('../views/Scrap.vue')
             },
             {
-                path: 'user',
+                path: '/user',
                 name: 'user',
                 component: () => import('../views/User.vue')
             },
             {
-                path: 'dictionary',
+                path: '/dictionary',
                 name: 'dictionary',
                 component: () => import('../views/Dictionary.vue')
             }
