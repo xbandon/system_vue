@@ -9,10 +9,10 @@
           <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
                    class="demo-ruleForm">
             <el-form-item label="" prop="loginName" style="width: 400px">
-              <el-input prefix-icon="el-icon-user" size="medium" v-model.trim="ruleForm.loginName"></el-input>
+              <el-input prefix-icon="el-icon-user" size="medium" placeholder="请输入账户名" v-model.trim="ruleForm.loginName"></el-input>
             </el-form-item>
             <el-form-item label="" prop="password" style="width: 400px">
-              <el-input prefix-icon="el-icon-lock" size="medium" v-model.trim="ruleForm.password"
+              <el-input prefix-icon="el-icon-lock" size="medium" placeholder="请输入密码" v-model.trim="ruleForm.password"
                         show-password></el-input>
             </el-form-item>
             <el-form-item>
@@ -41,8 +41,8 @@ export default {
         password: ''
       },
       rules: {
-        loginName: [{required: true, message: '账户名不能为空', trigger: 'change'}],
-        password: [{required: true, message: '密码不能为空', trigger: 'change'}]
+        loginName: [{required: true, message: '账户名不能为空', trigger: 'blur'}],
+        password: [{required: true, message: '密码不能为空', trigger: 'blur'}]
       }
     };
   },

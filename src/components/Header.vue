@@ -13,7 +13,9 @@
         <el-dropdown-item>
           <el-link :underline="false" @click="password=true">修改密码</el-link>
         </el-dropdown-item>
-        <el-dropdown-item @click.native="logout">注销登录</el-dropdown-item>
+        <el-dropdown-item>
+          <el-link :underline="false" @click="logout">注销登录</el-link>
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 
@@ -86,13 +88,13 @@ export default {
       userCenter: false,
       //个人信息
       userInfo: {
-        userCode: '1',
-        userName: '张三',
-        loginName: 'zs',
-        loginPassword: '123456',
-        email: '123@qq.com',
-        telephoneNumber: '13456789032',
-        roleName: '普通员工'
+        userCode: '',
+        userName: '',
+        loginName: '',
+        loginPassword: '',
+        email: '',
+        telephoneNumber: '',
+        roleName: ''
       },
       //表单校验规则
       formRules: {
@@ -145,15 +147,9 @@ export default {
     }
   },
   created() {
-    this.getUserInfo()
+
   },
   methods: {
-    //获取个人信息
-    async getUserInfo() {
-      await this.request.post('/getUserInfo', {}).then(res => {
-        this.userInfo = res.list
-      })
-    },
     //修改个人信息
     async editUserInfo() {
       await this.request.post('/user/editUserInfo', {}).then(res => {
@@ -172,12 +168,9 @@ export default {
     resetPass() {
       this.$refs.passForm.resetFields()
     },
-    //注销登录
-    async logout() {
-      await this.request.post('/logout', {}).then(res => {
-
-      })
-    },
+    logout(){
+      this.$router.push('/')
+    }
   }
 }
 </script>

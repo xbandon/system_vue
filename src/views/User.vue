@@ -25,14 +25,6 @@
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="登录状态：">
-                <el-select v-model="onlineStatusCode" placeholder="请选择登录状态" size="medium" clearable>
-                  <el-option label="离线" value="1"></el-option>
-                  <el-option label="在线" value="2"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
               <el-form-item label="就职状态：">
                 <el-select v-model="accountStatusCode" placeholder="请选择就职状态" size="medium" clearable>
                   <el-option label="在职" value="0"></el-option>
@@ -91,7 +83,6 @@
           <el-table-column prop="email" label="邮箱"></el-table-column>
           <el-table-column prop="telephoneNumber" label="手机号码"></el-table-column>
           <el-table-column prop="role" label="角色"></el-table-column>
-          <el-table-column prop="onlineStatus" label="登录状态"></el-table-column>
           <el-table-column prop="accountStatusCode" label="就职状态码" v-if="false"></el-table-column>
           <el-table-column prop="accountStatus" label="就职状态"></el-table-column>
           <el-table-column prop="entryTime" label="入职时间"></el-table-column>
@@ -227,7 +218,6 @@ export default {
       //查询列表
       userName: '',
       roleCode: '',
-      onlineStatusCode: '',
       accountStatusCode: '',
       entryTime: '',
       //新增对话框
@@ -304,7 +294,6 @@ export default {
         'page': this.currentPage,
         'userName': this.userName,
         'roleCode': this.roleCode,
-        'onlineStatusCode': this.onlineStatusCode,
         'accountStatusCode': this.accountStatusCode,
         'entryTime': filter.dateFormat(this.entryTime, 'yyyy-MM-dd')
       }).then(res => {
