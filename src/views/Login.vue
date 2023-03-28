@@ -9,17 +9,19 @@
           <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
                    class="demo-ruleForm">
             <el-form-item label="" prop="loginName" style="width: 400px">
-              <el-input prefix-icon="el-icon-user" size="medium" placeholder="请输入账户名" v-model.trim="ruleForm.loginName"></el-input>
+              <el-input prefix-icon="el-icon-user" size="medium" placeholder="账户名"
+                        v-model.trim="ruleForm.loginName"></el-input>
             </el-form-item>
             <el-form-item label="" prop="password" style="width: 400px">
-              <el-input prefix-icon="el-icon-lock" size="medium" placeholder="请输入密码" v-model.trim="ruleForm.password"
+              <el-input prefix-icon="el-icon-lock" size="medium" placeholder="密码"
+                        v-model.trim="ruleForm.password"
                         show-password></el-input>
             </el-form-item>
             <el-form-item>
 
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="medium" style="width: 300px" @click="submitForm()">登录</el-button>
+              <el-button type="primary" size="medium" style="width: 300px" @click="submitForm()">登 录</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -54,19 +56,19 @@ export default {
             'loginName': this.ruleForm.loginName,
             'loginPassword': this.ruleForm.password
           }).then(res => {
-            if (res.success) {
-              this.$router.push('/manageView')
-            } else if (!res.error) {
-              this.$message({
-                showClose: true,
-                message: res.errMsg,
-                type: 'error'
-              })
+            if (res.code === 200) {
+              // 存储用户信息
+              localStorage.setItem('user',JSON.stringify(res.result.data))
+              // 跳转不同页面
+              if (res.result.data.roleCode === 0 || res.result.data.roleCode === 1){
+                this.$router.push('/manageView')
+              }else{
+                this.$router.push('/userView')
+              }
+            } else {
+              this.$message.error(res.msg)
             }
           })
-        } else {
-          console.log('error submit!!');
-          return false;
         }
       });
     },
