@@ -11,9 +11,9 @@ const routes = [
         component: Login
     },
     {
-        path: '/manageView',
-        name: 'manageView',
-        component: () => import('../views/ManageView.vue'),
+        path: '/View',
+        name: 'View',
+        component: () => import('../views/View.vue'),
         children: [
             {
                 path: '/stock',
@@ -49,6 +49,38 @@ const routes = [
                 path: '/dictionary',
                 name: 'dictionary',
                 component: () => import('../views/Dictionary.vue')
+            }
+        ]
+    },
+    {
+        path: '/manageView',
+        name: 'manageView',
+        component: () => import('../views/ManageView.vue'),
+        children: [
+            {
+                path: '/manageStock',
+                name: 'manageStock',
+                component: () => import('../views/Stock.vue')
+            },
+            {
+                path: '/manageEquipment',
+                name: 'manageEquipment',
+                component: () => import('../views/Equipment.vue')
+            },
+            {
+                path: '/manageApply',
+                name: 'manageApply',
+                component: () => import('../views/Apply.vue')
+            },
+            {
+                path: '/manageChange',
+                name: 'manageChange',
+                component: () => import('../views/Change.vue')
+            },
+            {
+                path: '/manageScrap',
+                name: 'manageScrap',
+                component: () => import('../views/Scrap.vue')
             }
         ]
     },

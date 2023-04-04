@@ -36,11 +36,9 @@
               <el-form-item label="入职时间：">
                 <el-date-picker
                     v-model="entryTime"
-                    align="right"
                     type="date"
                     placeholder="请选择日期"
-                    size="medium"
-                    :picker-options="pickerOptions">
+                    size="medium">
                 </el-date-picker>
               </el-form-item>
             </el-col>
@@ -60,7 +58,7 @@
         <div style="margin-bottom: 15px">
           <el-button type="primary" style="font-size: 13px" @click="dialogFormVisible=true">新增员工 <i
               class="el-icon-circle-plus-outline"></i></el-button>
-          <el-button id="deleteButton" type="danger" style="font-size: 13px" @click="ifDelete">批量删除 <i
+          <el-button id="delButton" type="danger" style="font-size: 13px" @click="ifDelete">批量删除 <i
               class="el-icon-remove-outline"></i></el-button>
         </div>
         <el-table :data="tableData" border max-height="450px"
@@ -74,7 +72,7 @@
               |
               <el-link type="warning" :underline="false" @click="handleReset(row)">密码重置</el-link>
               |
-              <el-link type="danger" :underline="false" @click="handleQuit(row)" :disabled="quit(row)">离职</el-link>
+              <el-link type="danger" :underline="false" @click="handleQuit(row)" :disabled="quitFlg(row)">离职</el-link>
             </template>
           </el-table-column>
           <el-table-column prop="userCode" label="员工编号" v-if="false"></el-table-column>
@@ -109,18 +107,22 @@
     <el-dialog title="新增员工" :visible.sync="dialogFormVisible" @close="closeReset" width="30%">
       <el-form :model="form" :rules="formRules" ref="addForm" label-width="80px">
         <el-form-item label="员工姓名" prop="userName">
-          <el-input v-model.trim="form.userName" autocomplete="off" style="width: 300px" clearable></el-input>
+          <el-input v-model.trim="form.userName" autocomplete="off" placeholder="请输入员工姓名" style="width: 300px"
+                    clearable></el-input>
         </el-form-item>
         <el-form-item label="账户名" prop="loginName">
-          <el-input v-model.trim="form.loginName" autocomplete="off" placeholder="允许输入5-10个字符"
+          <el-input v-model.trim="form.loginName" autocomplete="off" placeholder="请输入账户名（3-8位数字、字母、下划线）"
+                    minlength="3" maxlength="8" show-word-limit
                     style="width: 300px"
                     clearable></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model.trim="form.email" autocomplete="off" style="width: 300px" clearable></el-input>
+          <el-input v-model.trim="form.email" autocomplete="off" placeholder="请输入邮箱" style="width: 300px"
+                    clearable></el-input>
         </el-form-item>
         <el-form-item label="手机号码" prop="telephoneNumber">
-          <el-input v-model.trim="form.telephoneNumber" autocomplete="off" style="width: 300px" clearable></el-input>
+          <el-input v-model.trim="form.telephoneNumber" autocomplete="off" placeholder="请输入手机号码"
+                    style="width: 300px" clearable></el-input>
         </el-form-item>
         <el-form-item label="角色" prop="roleCode">
           <el-select v-model="form.roleCode" placeholder="请选择角色" style="width: 300px" clearable>
@@ -131,7 +133,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button id="okButton" type="primary" style="margin-left: 30px" @click="onAdd">确 定</el-button>
+        <el-button id="addButton" type="primary" style="margin-left: 30px" @click="onAdd">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -139,7 +141,7 @@
       <span>是否确认删除？</span>
       <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button id="OkButton" type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
+            <el-button id="onDelButton" type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
             </span>
     </el-dialog>
 
@@ -166,10 +168,10 @@
             </span>
     </el-dialog>
 
-    <el-dialog title="提示" :visible.sync="visible" width="20%">
+    <el-dialog title="提示" :visible.sync="quitVisible" width="20%">
       <span>是否为该员工办理离职？</span>
       <span slot="footer" class="dialog-footer">
-            <el-button @click="visible = false">取 消</el-button>
+            <el-button @click="quitVisible = false">取 消</el-button>
             <el-button id="qButton" type="primary" style="margin-left: 30px" @click="onQuit">确 定</el-button>
             </span>
     </el-dialog>
@@ -185,36 +187,12 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      //获取当前登录人员信息
+      user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
       pageSize: 10, //每页显示条数
       total: 0, //数据总数
-      //日期选择器
-      pickerOptions: {
-        disabledDate(time) {
-          return time.getTime() > Date.now();
-        },
-        shortcuts: [{
-          text: '今天',
-          onClick(picker) {
-            picker.$emit('pick', new Date());
-          }
-        }, {
-          text: '昨天',
-          onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() - 3600 * 1000 * 24);
-            picker.$emit('pick', date);
-          }
-        }, {
-          text: '一周前',
-          onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-            picker.$emit('pick', date);
-          }
-        }]
-      },
       //查询列表
       userName: '',
       roleCode: '',
@@ -237,22 +215,14 @@ export default {
         ],
         loginName: [
           {required: true, message: '账户名不能为空', trigger: 'blur'},
-          {
-            min: 5,
-            max: 10,
-            message: '账户名长度不符',
-            trigger: 'change'
-          },
+          {pattern: /^\w+$/, message: '账户名格式错误', trigger: 'blur'},
+          {min: 3, max: 8, message: '账户名长度不符', trigger: 'change'}
         ],
         email: [
-          {type: 'email', message: '请输入正确的邮箱地址', trigger: 'change'}
+          {type: 'email', message: '邮箱格式错误', trigger: 'blur'}
         ],
         telephoneNumber: [
-          {
-            pattern: /^1[3578]\d{9}$/,
-            message: '请输入正确的手机号码',
-            trigger: 'change'
-          }
+          {pattern: /^1[3578]\d{9}$/, message: '手机号码格式错误', trigger: 'blur'}
         ],
         roleCode: [
           {required: true, message: '角色不能为空', trigger: 'change'}
@@ -262,15 +232,16 @@ export default {
       dialogVisible: false,
       //存储批量删除所选数据
       multipleSelection: [],
-      //员工授权
+      //员工授权对话框
       roleFormVisible: false,
-      keyId: '',
       role: [],
+      //表单校验规则
       roleRules: {
-        role: [{required: true, message: '角色不能为空', trigger: 'blur'}]
+        role: [{required: true, message: '角色不能为空', trigger: 'change'}]
       },
-      resetVisible: false,
-      visible: false
+      resetVisible: false, //密码重置对话框
+      quitVisible: false, //离职对话框
+      keyId: '' //主键
     }
   },
   created() {
@@ -297,8 +268,8 @@ export default {
         'accountStatusCode': this.accountStatusCode,
         'entryTime': filter.dateFormat(this.entryTime, 'yyyy-MM-dd')
       }).then(res => {
-        this.tableData = res.list
-        this.total = res.total
+        this.tableData = res.data.list
+        this.total = res.data.total
       })
     },
     onSubmit() {
@@ -309,7 +280,6 @@ export default {
     async reset() {
       this.userName = '',
           this.roleCode = '',
-          this.onlineStatusCode = '',
           this.accountStatusCode = '',
           this.entryTime = ''
     },
@@ -325,28 +295,22 @@ export default {
         'loginName': this.form.loginName,
         'email': this.form.email,
         'telephoneNumber': this.form.telephoneNumber,
-        'roleCode': this.form.roleCode
+        'roleCode': this.form.roleCode,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭新增对话框
           this.dialogFormVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
     onAdd() {
-      document.getElementById("okButton").blur()
+      document.getElementById("addButton").blur()
       this.$refs.addForm.validate(flg => {
         if (flg) {
           this.add()
@@ -357,6 +321,15 @@ export default {
     closeReset() {
       this.$refs.addForm.resetFields()
     },
+    //判断是否选择数据
+    ifDelete() {
+      document.getElementById("delButton").blur()
+      if (this.multipleSelection.length === 0) {
+        this.$message.error("请至少选择一条数据")
+      } else {
+        this.dialogVisible = true
+      }
+    },
     //获取批量删除所选数据
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -366,68 +339,44 @@ export default {
       await this.request.post('/mg/deleteUserInfo', {
         'list': this.multipleSelection,
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
-          this.dialogFormVisible = false
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭删除对话框
+          this.dialogVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
+          //关闭删除对话框
+          this.dialogVisible = false
         }
       })
     },
-    //判断是否选择数据
-    ifDelete() {
-      document.getElementById("deleteButton").blur()
-      if (this.multipleSelection.length === 0) {
-        this.$message({
-          showClose: true,
-          message: "请至少选择一条数据！",
-          type: 'error'
-        })
-      } else {
-        this.dialogVisible = true
-      }
-    },
     onDelete() {
-      document.getElementById("OkButton").blur()
+      document.getElementById("onDelButton").blur()
       this.delete()
     },
-    //数据回显
+    //授权对话框数据回显
     handleRole(row) {
       this.roleFormVisible = true
       this.role = row
       this.keyId = row.userCode
     },
-    //员工授权
+    //授权
     async setRole() {
       await this.request.post('/mg/editRole', {
         'userCode': this.keyId,
-        'roleCode': this.role.role
+        'roleCode': this.role.role,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
-          this.dialogFormVisible = false
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭授权对话框
+          this.roleFormVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
@@ -439,10 +388,11 @@ export default {
         }
       })
     },
+    //关闭授权对话框后重置表单
     roleReset() {
-      this.reload()
+      this.$refs.roleForm.resetFields()
     },
-    //获取Id
+    //获取主键
     handleReset(row) {
       this.resetVisible = true
       this.keyId = row.userCode
@@ -450,23 +400,17 @@ export default {
     //密码重置
     async resetPassword() {
       await this.request.post('/mg/resetPassword', {
-        'userCode': this.keyId
+        'userCode': this.keyId,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
-          this.dialogFormVisible = false
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭密码重置对话框
+          this.resetVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
@@ -474,41 +418,36 @@ export default {
       document.getElementById("rButton").blur()
       this.resetPassword()
     },
-    //离职
+    //获取主键
     handleQuit(row) {
-      this.visible = true
+      this.quitVisible = true
       this.keyId = row.userCode
     },
-    async quitUser() {
+    //离职
+    async quit() {
       await this.request.post('/mg/quitUser', {
-        'userCode': this.keyId
+        'userCode': this.keyId,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
-          this.dialogFormVisible = false
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭离职对话框
+          this.quitVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
     onQuit() {
       document.getElementById("qButton").blur()
-      this.quitUser()
+      this.quit()
     },
-    quit(row){
-      if(row.accountStatusCode === 1){
+    quitFlg(row) {
+      if (row.accountStatusCode === 1) {
         return true
-      }else {
+      } else {
         return false
       }
     }

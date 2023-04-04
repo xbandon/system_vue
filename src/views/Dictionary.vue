@@ -14,7 +14,7 @@
             <el-col :span="6">
               <el-form-item label="字典类型：">
                 <el-select v-model="dicTypeCode" placeholder="请选择字典类型" size="medium" clearable>
-                  <el-option label="用户角色" value="7"></el-option>
+                  <el-option label="用户角色" value="0"></el-option>
                   <el-option label="登录状态" value="1"></el-option>
                   <el-option label="账户状态" value="2"></el-option>
                   <el-option label="设备状态" value="3"></el-option>
@@ -100,7 +100,7 @@
       <el-form :model="form" :rules="formRules" ref="addForm" label-width="100px">
         <el-form-item label="字典类型：" prop="dicTypeCode">
           <el-select v-model="form.dicTypeCode" placeholder="请选择字典类型" style="width: 300px" clearable>
-            <el-option label="用户角色" value="7"></el-option>
+            <el-option label="用户角色" value="0"></el-option>
             <el-option label="登录状态" value="1"></el-option>
             <el-option label="账户状态" value="2"></el-option>
             <el-option label="设备状态" value="3"></el-option>
@@ -115,7 +115,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button id="okButton" type="primary" style="margin-left: 30px" @click="onAdd">确 定</el-button>
+        <el-button id="addButton" type="primary" style="margin-left: 30px" @click="onAdd">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -136,7 +136,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="editDialogFormVisible = false">取 消</el-button>
-        <el-button id="eButton" type="primary" style="margin-left: 30px" @click="onEdit">确 定</el-button>
+        <el-button id="editButton" type="primary" style="margin-left: 30px" @click="onEdit">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -144,7 +144,7 @@
       <span>是否确认操作？</span>
       <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button id="OkButton" type="primary" style="margin-left: 30px" @click="onEditFlag">确 定</el-button>
+            <el-button id="delButton" type="primary" style="margin-left: 30px" @click="onEditFlag">确 定</el-button>
             </span>
     </el-dialog>
   </div>
@@ -156,6 +156,8 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      //获取当前登录人员信息
+      user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
       pageSize: 10, //每页显示条数
@@ -173,7 +175,7 @@ export default {
       },
       //表单校验规则
       formRules: {
-        dicTypeCode: [{required: true, message: '字典类型不能为空', trigger: ['blur', 'change']}],
+        dicTypeCode: [{required: true, message: '字典类型不能为空', trigger: 'blur'}],
         dicValue: [{required: true, message: '字典内容不能为空', trigger: 'blur'}]
       },
       //修改对话框
@@ -185,7 +187,7 @@ export default {
       editRules: {
         dicValue: [{required: true, message: '字典内容不能为空', trigger: 'blur'}]
       },
-      //
+      //启用/禁用对话框
       dialogVisible: false,
       flag: ''
     }
@@ -213,13 +215,13 @@ export default {
         'dicValue': this.dicValue,
         'delFlag': this.delFlag
       }).then(res => {
-        this.tableData = res.list
-        this.total = res.total
+        this.tableData = res.data.list
+        this.total = res.data.total
       })
     },
     onSubmit() {
-      this.load()
       document.getElementById("queryButton").blur()
+      this.load()
     },
     //重置
     async reset() {
@@ -228,36 +230,30 @@ export default {
           this.delFlag = ''
     },
     onReset() {
+      document.getElementById("resetButton").blur()
       this.reset()
       this.load()
-      document.getElementById("resetButton").blur()
     },
     //新增
     async add() {
       await this.request.post('/mg/addDictionaryInfo', {
         'dicTypeCode': this.form.dicTypeCode,
-        'dicValue': this.form.dicValue
+        'dicValue': this.form.dicValue,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭新增对话框
           this.dialogFormVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
     onAdd() {
-      document.getElementById("okButton").blur()
+      document.getElementById("addButton").blur()
       this.$refs.addForm.validate(flg => {
         if (flg) {
           this.add()
@@ -268,7 +264,7 @@ export default {
     closeReset() {
       this.$refs.addForm.resetFields()
     },
-    //数据回显
+    //修改对话框数据回显
     handleEdit(row) {
       this.editDialogFormVisible = true
       this.editForm = row
@@ -279,44 +275,38 @@ export default {
       await this.request.post('/mg/editDictionaryInfo', {
         'keyId': this.keyId,
         'dicTypeCode': this.editForm.dicTypeCode,
-        'dicValue': this.editForm.dicValue
+        'dicValue': this.editForm.dicValue,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭修改对话框
           this.editDialogFormVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
     onEdit() {
-      document.getElementById("eButton").blur()
+      document.getElementById("editButton").blur()
       this.$refs.editForm.validate(flg => {
         if (flg) {
           this.edit()
         }
       })
     },
-    editReset(){
-      this.reload()
+    //关闭修改对话框后重置表单
+    editReset() {
+      this.$refs.editForm.resetFields()
     },
-    //传入数据
+    //获取主键
     handleEditFlag(row) {
       this.dialogVisible = true
       this.keyId = row.keyId
       if (row.delFlag === '0') {
         this.flag = '1'
-        console.log(this.flag)
       } else {
         this.flag = '0'
       }
@@ -325,28 +315,21 @@ export default {
     async editFlag() {
       await this.request.post('/mg/editDictionaryDelFlag', {
         'keyId': this.keyId,
-        'delFlag': this.flag
+        'delFlag': this.flag,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
+        if (res.code === 200) {
+          this.$message.success(res.msg)
           this.dialogVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
     onEditFlag() {
-      document.getElementById("OkButton").blur()
+      document.getElementById("delButton").blur()
       this.editFlag()
     }
   }

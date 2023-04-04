@@ -24,10 +24,11 @@
     <el-dialog title="个人信息" :visible.sync="userCenter" @close="resetForm()" width="30%">
       <el-form :model="user" :rules="formRules" ref="userForm" label-width="80px">
         <el-form-item label="姓名" prop="userName">
-          <el-input v-model.trim="user.userName" placeholder="姓名" autocomplete="off" clearable></el-input>
+          <el-input v-model.trim="user.userName" placeholder="请输入姓名" autocomplete="off" clearable></el-input>
         </el-form-item>
         <el-form-item label="账户名" prop="loginName">
-          <el-input v-model.trim="user.loginName" placeholder="允许输入5-8个字符" autocomplete="off"
+          <el-input v-model.trim="user.loginName" placeholder="请输入账户名（3-8位数字、字母、下划线）" autocomplete="off"
+                    minlength="3" maxlength="8" show-word-limit
                     clearable></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
@@ -43,18 +44,19 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="userCenter = false">取 消</el-button>
-        <el-button type="primary" style="margin-left: 30px" @click="editUserInfo">确 定</el-button>
+        <el-button id="userButton" type="primary" style="margin-left: 30px" @click="onEditUserInfo">确 定</el-button>
       </div>
     </el-dialog>
 
     <el-dialog title="修改密码" :visible.sync="password" @close="resetPass()" width="30%">
       <el-form :model="form" :rules="passRules" ref="passForm" label-width="100px">
         <el-form-item label="原密码" prop="srcPass">
-          <el-input v-model.trim="form.srcPass" placeholder="原密码" autocomplete="off" show-password
+          <el-input v-model.trim="form.srcPass" placeholder="请输入原密码" autocomplete="off" show-password
                     clearable></el-input>
         </el-form-item>
         <el-form-item label="新密码" prop="newPass">
-          <el-input v-model.trim="form.newPass" placeholder="8-15位数字和英文字母组合" autocomplete="off"
+          <el-input v-model.trim="form.newPass" placeholder="请输入新密码（8-16位数字、字母）" autocomplete="off"
+                    minlength="8" maxlength="16" show-word-limit
                     show-password clearable></el-input>
         </el-form-item>
         <el-form-item label="确认新密码" prop="confirmPass">
@@ -64,7 +66,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="password = false">取 消</el-button>
-        <el-button type="primary" style="margin-left: 30px" @click="editPassword">确 定</el-button>
+        <el-button id="passButton" type="primary" style="margin-left: 30px" @click="onEditPassword">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -80,13 +82,13 @@ export default {
   data() {
     const validateSConfirmPass = (rule, value, callback) => {
       if (value !== this.form.newPass) {
-        callback(new Error('两次输入密码不一致!'));
+        callback(new Error('两次输入密码不一致'));
       } else {
         callback();
       }
     };
     return {
-      //获取个人信息
+      //获取当前登录人员信息
       user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
       //角色名
       roleName: '',
@@ -99,22 +101,14 @@ export default {
         ],
         loginName: [
           {required: true, message: '账户名不能为空', trigger: 'blur'},
-          {
-            min: 5,
-            max: 8,
-            message: '账户名长度不符',
-            trigger: 'change'
-          },
+          {pattern: /^\w+$/, message: '账户名格式错误', trigger: 'blur'},
+          {min: 3, max: 8, message: '账户名长度不符', trigger: 'change'}
         ],
         email: [
-          {type: 'email', message: '请输入正确的邮箱地址', trigger: 'change'}
+          {type: 'email', message: '邮箱格式错误', trigger: 'blur'}
         ],
         telephoneNumber: [
-          {
-            pattern: /^1[3578]\d{9}$/,
-            message: '请输入正确的手机号码',
-            trigger: 'change'
-          }
+          {pattern: /^1[3578]\d{9}$/, message: '手机号码格式错误', trigger: 'blur'}
         ],
         roleCode: [{required: true}]
       },
@@ -133,8 +127,8 @@ export default {
         ],
         newPass: [
           {required: true, message: '新密码不能为空', trigger: 'blur'},
-          {min: 8, max: 15, message: '密码长度不符', trigger: 'change'},
-          {pattern: /^[0-9a-zA-Z]*$/g, message: '密码格式错误', trigger: 'blur'}
+          {pattern: /^[0-9a-zA-Z]*$/g, message: '密码格式错误', trigger: 'blur'},
+          {min: 8, max: 16, message: '密码长度不符', trigger: 'change'}
         ],
         confirmPass: [
           {required: true, validator: validateSConfirmPass, trigger: 'blur'}
@@ -158,24 +152,57 @@ export default {
     },
     //修改个人信息
     async editUserInfo() {
-      await this.request.post('/user/editUserInfo', {
-
-      }).then(res => {
-
+      await this.request.post('/user/editUserInfo', this.user).then(res => {
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭个人信息对话框
+          this.userCenter = false
+        } else {
+          this.$message.error(res.msg)
+        }
       })
     },
+    onEditUserInfo() {
+      document.getElementById("userButton").blur()
+      this.$refs.userForm.validate(flg => {
+        if (flg) {
+          this.editUserInfo()
+        }
+      })
+    },
+    //关闭个人信息对话框后重置表单
     resetForm() {
       this.$refs.userForm.resetFields()
     },
     //修改密码
     async editPassword() {
-      await this.request.post('/user/editPassword', {}).then(res => {
-
+      await this.request.post('/user/editPassword', {
+        'srcPass': this.form.srcPass,
+        'newPass': this.form.newPass,
+        'loginUserCode': this.user.userCode
+      }).then(res => {
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭修改密码对话框
+          this.password = false
+        } else {
+          this.$message.error(res.msg)
+        }
       })
     },
+    onEditPassword() {
+      document.getElementById("passButton").blur()
+      this.$refs.passForm.validate(flg => {
+        if (flg) {
+          this.editPassword()
+        }
+      })
+    },
+    //关闭修改密码对话框后重置表单
     resetPass() {
       this.$refs.passForm.resetFields()
     },
+    //注销登录
     logout() {
       this.$router.push('/')
       localStorage.removeItem('user')

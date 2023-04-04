@@ -122,26 +122,26 @@ export default {
         'equipmentType': this.equipmentType,
         'receiveStatusCode': this.receiveStatusCode
       }).then(res => {
-        this.tableData = res.list
-        this.total = res.total
+        this.tableData = res.data.list
+        this.total = res.data.total
       })
     },
     onSubmit() {
-      this.load()
       document.getElementById("queryButton").blur()
+      this.load()
     },
     //重置
     async reset() {
-      this.userName = '',
+      this.applyUser = '',
           this.approvalUser = '',
           this.equipmentName = '',
           this.equipmentType = '',
           this.receiveStatusCode = ''
     },
     onReset() {
+      document.getElementById("resetButton").blur()
       this.reset()
       this.load()
-      document.getElementById("resetButton").blur()
     },
   }
 }

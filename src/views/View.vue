@@ -2,7 +2,7 @@
   <div class="home">
     <el-container style="min-height: 100vh; border: 1px solid #eee; background-color: #f5f7fa">
       <el-aside :width="sideWidth + 'px'">
-        <ManageAside :isCollapse="isCollapse"/>
+        <Aside :isCollapse="isCollapse"/>
       </el-aside>
 
       <el-container>
@@ -19,12 +19,12 @@
 </template>
 
 <script>
-import ManageAside from "@/components/ManageAside.vue";
+import Aside from "@/components/Aside.vue";
 import Header from "@/components/Header.vue";
 
 export default {
-  name: 'ManageView',
-  components: {Header, ManageAside},
+  name: 'View',
+  components: {Header, Aside},
   data() {
     return {
       collapseBtnClass: 'el-icon-s-fold', //导航栏收缩按钮图标 默认收缩

@@ -35,7 +35,7 @@
           <el-table-column label="操作" width="150px">
             <template v-slot:="{row}">
               <el-link type="primary" :underline="false"
-                       @click=query(row.keyId,row.srcEquipmentName,row.srcEquipmentType,row.equipmentName,row.applyReason)>
+                       @click=onQueryFree(row.keyId,row.srcEquipmentName,row.srcEquipmentType,row.equipmentName,row.applyReason)>
                 查看
               </el-link>
             </template>
@@ -92,9 +92,9 @@
     </el-dialog>
 
     <el-dialog title="申请驳回" :visible.sync="dialogFormVisible" @close="closeReset" width="30%">
-      <el-form :model="form" :rules="formRules" ref="form" label-width="80px">
+      <el-form :rules="formRules" ref="form" label-width="80px">
         <el-form-item label="备注" prop="approvalLog">
-          <el-input v-model.trim="form.approvalLog" placeholder="请输入申请驳回原因"
+          <el-input v-model.trim="approvalLog" placeholder="请输入申请驳回原因"
                     autocomplete="off"
                     style="width: 300px"
                     type="textarea" :rows="2"
@@ -104,7 +104,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button id="okButton" type="primary" style="margin-left: 30px" @click="unPass">确 定</el-button>
+        <el-button id="unPassButton" type="primary" style="margin-left: 30px" @click="unPass">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -116,6 +116,8 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      //获取当前登录人员信息
+      user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
       pageSize: 10, //每页显示条数
@@ -123,22 +125,22 @@ export default {
       //查询列表
       userName: '',
       equipmentName: '',
-      dialogTableVisible: false, //查看对话框
+      //查看对话框
+      dialogTableVisible: false,
       gridData: [], //对话框内表格数据
-      radio: '', //是否选中某个单选框
-      //传入参数
+      passFlg: false, //通过按钮启用/禁用标记
+      radio: '', //单选框选择标记
+      //申请驳回对话框
+      dialogFormVisible: false,
+      //审批列表
+      eName: '',
       keyId: '',
       sName: '',
       sType: '',
-      eName: '',
       eType: '',
       aReason: '',
       approvalStatusCode: '',
-      passFlg: false,
-      dialogFormVisible: false, //申请驳回对话框
-      form: {
-        approvalLog: ''
-      },
+      approvalLog: '',
       //表单校验规则
       formRules: {
         approvalLog: [{required: true, message: '申请驳回原因不能为空', trigger: 'blur'}]
@@ -167,13 +169,13 @@ export default {
         'userName': this.userName,
         'equipmentName': this.equipmentName,
       }).then(res => {
-        this.tableData = res.list
-        this.total = res.total
+        this.tableData = res.data.list
+        this.total = res.data.total
       })
     },
     onSubmit() {
-      this.load()
       document.getElementById("queryButton").blur()
+      this.load()
     },
     //重置
     async reset() {
@@ -181,26 +183,26 @@ export default {
           this.equipmentName = ''
     },
     onReset() {
+      document.getElementById("resetButton").blur()
       this.reset()
       this.load()
-      document.getElementById("resetButton").blur()
     },
     //查询空闲设备
     async queryFree() {
       await this.request.post('/mg/queryFreeEquipments', {
         'equipmentName': this.eName
       }).then(res => {
-        if (res.success) {
-          this.gridData = res.list
+        if (res.data.success) {
+          this.gridData = res.data.list
           this.passFlg = false
         } else {
-          this.gridData = res.list
+          this.gridData = res.data.list
           this.passFlg = true
         }
       })
     },
-    //获取主键，设备名称
-    query(keyId, sName, sType, eName, aReason) {
+    //获取主键，原设备名称，原设备型号，申请设备名称，申请原因
+    onQueryFree(keyId, sName, sType, eName, aReason) {
       this.dialogTableVisible = true
       this.keyId = keyId
       this.sName = sName
@@ -213,7 +215,8 @@ export default {
     getCurrentRow(row) {
       this.eType = row.equipmentType
     },
-    async pass() {
+    //审批
+    async approve() {
       await this.request.post('/mg/approveChangeApplications', {
         'keyId': this.keyId,
         'srcEquipmentName': this.sName,
@@ -221,23 +224,17 @@ export default {
         'equipmentType': this.eType,
         'applyReason': this.aReason,
         'approvalStatusCode': this.approvalStatusCode,
-        'approvalLog': this.form.approvalLog
+        'approvalLog': this.approvalLog,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭查看对话框
           this.dialogTableVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
@@ -245,22 +242,18 @@ export default {
       document.getElementById("passButton").blur()
       //判断是否选择数据
       if (this.radio === '') {
-        this.$message({
-          showClose: true,
-          message: "请选择一条数据！",
-          type: 'error'
-        })
+        this.$message.error("请选择一条数据")
       } else {
         this.approvalStatusCode = 2
-        this.pass()
+        this.approve()
       }
     },
     unPass() {
-      document.getElementById("okButton").blur()
+      document.getElementById("unPassButton").blur()
       this.$refs.form.validate(flg => {
         if (flg) {
           this.approvalStatusCode = 3
-          this.pass()
+          this.approve()
         }
       })
     },

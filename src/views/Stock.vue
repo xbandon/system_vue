@@ -88,22 +88,22 @@ export default {
         'page': this.currentPage,
         'equipmentName': this.equipmentName.trim()
       }).then(res => {
-        this.tableData = res.list
-        this.total = res.total
+        this.tableData = res.data.list
+        this.total = res.data.total
       })
     },
     onSubmit() {
-      this.load()
       document.getElementById("queryButton").blur()
+      this.load()
     },
     //重置
     async reset() {
       this.equipmentName = ''
     },
     onReset() {
+      document.getElementById("resetButton").blur()
       this.reset()
       this.load()
-      document.getElementById("resetButton").blur()
     }
   }
 }

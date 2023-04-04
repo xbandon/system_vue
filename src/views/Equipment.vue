@@ -53,7 +53,7 @@
         <div style="margin-bottom: 15px">
           <el-button type="primary" style="font-size: 13px" @click="dialogFormVisible=true">新增设备 <i
               class="el-icon-circle-plus-outline"></i></el-button>
-          <el-button id="deleteButton" type="danger" style="font-size: 13px" @click=ifDelete>批量删除 <i
+          <el-button id="delButton" type="danger" style="font-size: 13px" @click=ifDelete>批量删除 <i
               class="el-icon-remove-outline"></i></el-button>
         </div>
         <el-table :data="tableData" border max-height="450px"
@@ -91,16 +91,19 @@
     <el-dialog title="新增设备" :visible.sync="dialogFormVisible" @close="closeReset" width="30%">
       <el-form :model="form" :rules="formRules" ref="addForm" label-width="80px">
         <el-form-item label="设备名称" prop="equipmentName">
-          <el-input v-model.trim="form.equipmentName" autocomplete="off" style="width: 300px" clearable></el-input>
+          <el-input v-model.trim="form.equipmentName" autocomplete="off" placeholder="请输入设备名称"
+                    style="width: 300px"
+                    clearable></el-input>
         </el-form-item>
         <el-form-item label="设备型号" prop="equipmentType">
-          <el-input v-model.trim="form.equipmentType" autocomplete="off" placeholder="允许输入数字和英文字母"
-                    style="width: 300px" maxlength="8" show-word-limit clearable></el-input>
+          <el-input v-model.trim="form.equipmentType" autocomplete="off" placeholder="请输入设备型号"
+                    style="width: 300px"
+                    clearable></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button id="okButton" type="primary" style="margin-left: 30px" @click="onAdd">确 定</el-button>
+        <el-button id="addButton" type="primary" style="margin-left: 30px" @click="onAdd">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -108,7 +111,7 @@
       <span>是否确认删除？</span>
       <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button id="OkButton" type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
+            <el-button type="primary" style="margin-left: 30px" @click="onDelete">确 定</el-button>
             </span>
     </el-dialog>
   </div>
@@ -120,6 +123,8 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      //获取当前登录人员信息
+      user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
       tableData: [], //表格数据 默认为空
       currentPage: 1, //当前页
       pageSize: 10, //每页显示条数
@@ -142,12 +147,7 @@ export default {
           {required: true, message: '设备名称不能为空', trigger: 'blur'}
         ],
         equipmentType: [
-          {required: true, message: '设备型号不能为空', trigger: 'blur'},
-          {
-            pattern: /^[0-9a-zA-Z]*$/g,
-            message: '请输入正确的设备型号',
-            trigger: 'blur'
-          },
+          {required: true, message: '设备型号不能为空', trigger: 'blur'}
         ]
       },
       //删除对话框
@@ -180,8 +180,8 @@ export default {
         'equipmentStatusCode': this.equipmentStatusCode,
         'userName': this.userName
       }).then(res => {
-        this.tableData = res.list
-        this.total = res.total
+        this.tableData = res.data.list
+        this.total = res.data.total
       })
     },
     onSubmit() {
@@ -204,28 +204,22 @@ export default {
     async add() {
       await this.request.post('/mg/addEquipmentInfo', {
         'equipmentName': this.form.equipmentName,
-        'equipmentType': this.form.equipmentType
+        'equipmentType': this.form.equipmentType,
+        'loginUserCode': this.user.userCode
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭新增对话框
           this.dialogFormVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
     onAdd() {
-      document.getElementById("okButton").blur()
+      document.getElementById("addButton").blur()
       this.$refs.addForm.validate(flg => {
         if (flg) {
           this.add()
@@ -236,6 +230,15 @@ export default {
     closeReset() {
       this.$refs.addForm.resetFields()
     },
+    //判断是否选择数据
+    ifDelete() {
+      document.getElementById("delButton").blur()
+      if (this.multipleSelection.length === 0) {
+        this.$message.error("请至少选择一条数据")
+      } else {
+        this.dialogVisible = true
+      }
+    },
     //获取批量删除所选数据
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -245,39 +248,20 @@ export default {
       await this.request.post('/mg/deleteEquipmentInfo', {
         'list': this.multipleSelection,
       }).then(res => {
-        if (res.success) {
-          this.$message({
-            showClose: true,
-            message: '操作成功！',
-            type: 'success'
-          })
-          this.dialogFormVisible = false
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+          //关闭删除对话框
+          this.dialogVisible = false
           //刷新页面
           this.reload()
-        } else if (!res.error) {
-          this.$message({
-            showClose: true,
-            message: res.errMsg,
-            type: 'error'
-          })
+        } else {
+          this.$message.error(res.msg)
+          //关闭删除对话框
+          this.dialogVisible = false
         }
       })
     },
-    //判断是否选择数据
-    ifDelete() {
-      document.getElementById("deleteButton").blur()
-      if (this.multipleSelection.length === 0) {
-        this.$message({
-          showClose: true,
-          message: "请至少选择一条数据！",
-          type: 'error'
-        })
-      } else {
-        this.dialogVisible = true
-      }
-    },
     onDelete() {
-      document.getElementById("OkButton").blur()
       this.delete()
     }
   }
